@@ -1,9 +1,17 @@
+@model IEnumerable<RSSReader.ViewModels.RSSFeedItem>
 @{
     ViewData["Title"] = "Home Page";
 }
 
 
-<div class="row">
+@foreach (var item in Model) {
+<div>
+    @item.TitleStr
+    <hr />
+</div>
+}
+
+<!--<div class="row">
     <div class="col-md-3">
         <h2>Col 1</h2>
         <ul>
@@ -32,4 +40,4 @@
             <li>Text</li>
         </ul>
     </div>
-</div>
+</div>-->
