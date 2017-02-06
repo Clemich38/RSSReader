@@ -3,13 +3,28 @@
     ViewData["Title"] = "Home Page";
 }
 
-
-@foreach (var item in Model) {
-<div>
-    @item.TitleStr
-    <hr />
+<div class="row">
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">Settings</div>
+            <div class="panel-body">
+                <!--<h2>Col 2</h2>-->
+                <ul>
+                    <li>Text</li>
+                    <li>Text</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-9">
+        @foreach (var item in Model) {
+        <div>
+            @item.TitleStr
+            <hr />
+        </div>
+        }
+    </div>
 </div>
-}
 
 <!--<div class="row">
     <div class="col-md-3">
