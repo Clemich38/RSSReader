@@ -72,40 +72,8 @@ namespace RSSReader.Controllers
                                                                   FeedTitle = channelName});
                     }
 
-                    foreach(FeedChannel feed in RSSFeedItems.FeedList)
-                    {
-                        using (var client = new HttpClient())
-                        {
-                            client.BaseAddress = new Uri(feed.FeedUrl);
-                            var getResponse = await client.GetAsync(feed.FeedUrl);
-                            string getResponseString = await getResponse.Content.ReadAsStringAsync();
+                    RSSFeedItems = await RefreshFeedList(RSSFeedItems);
 
-                            // Extract infos from XML
-                            XDocument doc = XDocument.Parse(getResponseString);
-
-                            IEnumerable<RSSFeedItem> list = from item in doc.Root.Descendants().First(i => i.Name.LocalName == "channel").Elements().Where(i => i.Name.LocalName == "item")
-                                select new RSSFeedItem
-                                {
-                                    TitleStr = item.Elements().First(i => i.Name.LocalName == "title").Value,
-                                    LinkStr = item.Elements().First(i => i.Name.LocalName == "link").Value,
-                                    ContentStr = item.Elements().First(i => i.Name.LocalName == "description").Value,
-                                    DateStr = ExtractDate(item.Elements().First(i => i.Name.LocalName == "pubDate").Value)
-                                };
-
-                            if(RSSFeedItems.ItemList == null)
-                                {
-                                    RSSFeedItems.ItemList = list;
-                                }
-                            else
-                                {
-                                    RSSFeedItems.ItemList = RSSFeedItems.ItemList.Concat(list);
-                                }
-
-                        }
-                    }
-
-                    // //Add the Url to the list
-                    // RSSFeedItems.FeedUrlList.Add(RSSFeedItems.LastFeedUrl);
                 }
                 catch (Exception e){
                     RSSFeedItems.ErrorMsg = e.Message;
@@ -123,6 +91,43 @@ namespace RSSReader.Controllers
 
             return View(RSSFeedItems);
         } 
+
+        private async Task<RSSFeedItemList> RefreshFeedList(RSSFeedItemList RSSFeedItems)
+        {
+            foreach (FeedChannel feed in RSSFeedItems.FeedList)
+            {
+                using (var client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(feed.FeedUrl);
+                    var getResponse = await client.GetAsync(feed.FeedUrl);
+                    string getResponseString = await getResponse.Content.ReadAsStringAsync();
+
+                    // Extract infos from XML
+                    XDocument doc = XDocument.Parse(getResponseString);
+
+                    IEnumerable<RSSFeedItem> list = from item in doc.Root.Descendants().First(i => i.Name.LocalName == "channel").Elements().Where(i => i.Name.LocalName == "item")
+                        select new RSSFeedItem
+                        {
+                            TitleStr = item.Elements().First(i => i.Name.LocalName == "title").Value,
+                            LinkStr = item.Elements().First(i => i.Name.LocalName == "link").Value,
+                            ContentStr = item.Elements().First(i => i.Name.LocalName == "description").Value,
+                            DateStr = ExtractDate(item.Elements().First(i => i.Name.LocalName == "pubDate").Value)
+                        };
+
+                    if (RSSFeedItems.ItemList == null)
+                    {
+                        RSSFeedItems.ItemList = list;
+                    }
+                    else
+                    {
+                        RSSFeedItems.ItemList = RSSFeedItems.ItemList.Concat(list);
+                    }
+
+                }
+            }
+
+            return RSSFeedItems;
+        }
 
         private DateTime ExtractDate(string date)
         {
