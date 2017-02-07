@@ -46,9 +46,9 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 @if (Model.UrlIsValid) {
-                    @foreach (var url in Model.FeedUrlList) 
+                    @foreach (var feed in Model.FeedList) 
                     {
-                        <div>@url</div>
+                        <div>@feed.FeedTitle</div>
                     }
                 }
             </div>

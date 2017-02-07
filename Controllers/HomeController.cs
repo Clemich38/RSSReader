@@ -26,7 +26,8 @@ namespace RSSReader.Controllers
             {
                 RSSFeedItems = new RSSFeedItemList
                 {
-                    FeedUrlList = new List<string>(),
+                    FeedList = new List<FeedChannel>(),
+                    ItemList = null,
                     ErrorMsg = "",
                     UrlIsValid = false,
                     DisplayTitle = true,
@@ -43,6 +44,7 @@ namespace RSSReader.Controllers
                 RSSFeedItems = HttpContext.Session.GetObjectFromJson<RSSFeedItemList>("RSSFeedItems");
             }
 
+            RSSFeedItems.ItemList = null;
             RSSFeedItems.UrlIsValid = true;
             RSSFeedItems.DisplayTitle = DisplayTitle;
             RSSFeedItems.DisplayLink = DisplayLink;
@@ -61,18 +63,49 @@ namespace RSSReader.Controllers
 
                         // Extract infos from XML
                         XDocument doc = XDocument.Parse(getResponseString);
-                        RSSFeedItems.ItemList = from item in doc.Root.Descendants().First(i => i.Name.LocalName == "channel").Elements().Where(i => i.Name.LocalName == "item")
-                            select new RSSFeedItem
-                            {
-                                TitleStr = item.Elements().First(i => i.Name.LocalName == "title").Value,
-                                LinkStr = item.Elements().First(i => i.Name.LocalName == "link").Value,
-                                ContentStr = item.Elements().First(i => i.Name.LocalName == "description").Value,
-                                DateStr = ExtractDate(item.Elements().First(i => i.Name.LocalName == "pubDate").Value)
-                            };
 
+                        // Get Channel Name
+                        string channelName = doc.Root.Descendants().First(i => i.Name.LocalName == "channel").Elements().First(i => i.Name.LocalName == "title").Value;
+                        
                         //Add the Url to the list
-                        RSSFeedItems.FeedUrlList.Add(RSSFeedItems.LastFeedUrl);
+                        RSSFeedItems.FeedList.Add(new FeedChannel{FeedUrl = RSSFeedItems.LastFeedUrl,
+                                                                  FeedTitle = channelName});
                     }
+
+                    foreach(FeedChannel feed in RSSFeedItems.FeedList)
+                    {
+                        using (var client = new HttpClient())
+                        {
+                            client.BaseAddress = new Uri(feed.FeedUrl);
+                            var getResponse = await client.GetAsync(feed.FeedUrl);
+                            string getResponseString = await getResponse.Content.ReadAsStringAsync();
+
+                            // Extract infos from XML
+                            XDocument doc = XDocument.Parse(getResponseString);
+
+                            IEnumerable<RSSFeedItem> list = from item in doc.Root.Descendants().First(i => i.Name.LocalName == "channel").Elements().Where(i => i.Name.LocalName == "item")
+                                select new RSSFeedItem
+                                {
+                                    TitleStr = item.Elements().First(i => i.Name.LocalName == "title").Value,
+                                    LinkStr = item.Elements().First(i => i.Name.LocalName == "link").Value,
+                                    ContentStr = item.Elements().First(i => i.Name.LocalName == "description").Value,
+                                    DateStr = ExtractDate(item.Elements().First(i => i.Name.LocalName == "pubDate").Value)
+                                };
+
+                            if(RSSFeedItems.ItemList == null)
+                                {
+                                    RSSFeedItems.ItemList = list;
+                                }
+                            else
+                                {
+                                    RSSFeedItems.ItemList = RSSFeedItems.ItemList.Concat(list);
+                                }
+
+                        }
+                    }
+
+                    // //Add the Url to the list
+                    // RSSFeedItems.FeedUrlList.Add(RSSFeedItems.LastFeedUrl);
                 }
                 catch (Exception e){
                     RSSFeedItems.ErrorMsg = e.Message;

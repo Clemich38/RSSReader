@@ -13,7 +13,7 @@ namespace RSSReader.ViewModels
     public string ErrorMsg { get; set; }
     public bool UrlIsValid { get; set; }
     public string LastFeedUrl { get; set; }
-    public IList<string> FeedUrlList { get; set; }
+    public IList<FeedChannel> FeedList { get; set; }
   }
 
   public class RSSFeedItem
@@ -22,5 +22,11 @@ namespace RSSReader.ViewModels
     public string TitleStr { get; set; }
     public string ContentStr { get; set; }
     public DateTime DateStr { get; set; }
+  }
+  
+  public class FeedChannel
+  {
+    public string FeedUrl { get; set; }
+    public string FeedTitle { get; set; }
   }
 }
