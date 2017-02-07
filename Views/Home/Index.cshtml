@@ -11,7 +11,7 @@
                 <form class="form-group" method="post" asp-action="Index" asp-controller="Home" enctype="multipart/form-data">
                     <div>
                         <label for="FeedUrl">RSS Feed url:</label>
-                        <input type="text" name="FeedUrl" class="form-control" value="https://news.google.com/?output=rss"/>
+                        <input type="text" name="FeedUrl" class="form-control" value=@Model.LastFeedUrl/>
                     </div>
                     <div class="checkbox">
                         <label>
@@ -31,40 +31,69 @@
                             Diplay Content
                         </label>
                     </div>
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBox("DisplayDate", false)
+                            Diplay Date
+                        </label>
+                    </div>
                     <div>
-                        <input type="submit" value="Load" class="btn btn-info btn-sm" />
+                        <input type="submit" value="Load" class="btn btn-primary btn-sm" />
                     </div>
                 </form>
+            </div>
+        </div>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                @if (Model.UrlIsValid) {
+                    @foreach (var url in Model.FeedUrlList) 
+                    {
+                        <div>@url</div>
+                    }
+                }
             </div>
         </div>
     </div>
     <div class="col-md-9">
         @if (Model.UrlIsValid)
         {
-            @foreach (var item in Model.ItemList)
-            {
-                <div>
-                    @if (Model.DisplayTitle)
-                    {
-                        <div>
-                            <h5>@item.TitleStr</h5>
+            <div class="panel-group">
+                @foreach (var item in Model.ItemList)
+                {
+                    <div class="panel panel-primary">
+                        @if (Model.DisplayTitle)
+                        {
+                            <div class="panel-heading">@item.TitleStr</div>
+
+                        }
+                        <div class="panel-body">
+                            @if (Model.DisplayContent)
+                            {
+                                <div>
+                                    @Html.Raw(@item.ContentStr)
+                                </div>
+                            }
                         </div>
-                    }
-                    @if (Model.DisplayContent)
-                    {
-                        <div>
-                            @Html.Raw(@item.ContentStr)
-                        </div>
-                    }
-                    @if (Model.DisplayLink)
-                    {
-                        <div>
-                            <a href=@item.LinkStr>@item.LinkStr.Substring(0, Math.Min(item.LinkStr.Length, 60))...</a>
-                        </div>
-                    }
-                    <hr />
-                </div>
-            }
+                        @if (Model.DisplayLink || Model.DisplayDate)
+                        {
+                            <div class="panel-footer">
+                                @if (Model.DisplayLink)
+                                {
+                                    <div>
+                                        <a href=@item.LinkStr>@item.LinkStr.Substring(0, Math.Min(item.LinkStr.Length, 60))...</a>
+                                    </div>
+                                }
+                                @if (Model.DisplayDate)
+                                {
+                                    <div>
+                                        @item.DateStr
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
         }
         else
         {
@@ -75,33 +104,3 @@
     </div>
 </div>
 
-<!--<div class="row">
-    <div class="col-md-3">
-        <h2>Col 1</h2>
-        <ul>
-            <li>Text</li>
-            <li>Text</li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Col 2</h2>
-        <ul>
-            <li>Text</li>
-            <li>Text</li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Col 3</h2>
-        <ul>
-            <li>Text</li>
-            <li>Text</li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Col 4</h2>
-        <ul>
-            <li>Text</li>
-            <li>Text</li>
-        </ul>
-    </div>
-</div>-->

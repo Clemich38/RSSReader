@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 
 namespace RSSReader.ViewModels
 {
@@ -11,6 +12,8 @@ namespace RSSReader.ViewModels
     public bool DisplayDate { get; set; }
     public string ErrorMsg { get; set; }
     public bool UrlIsValid { get; set; }
+    public string LastFeedUrl { get; set; }
+    public IList<string> FeedUrlList { get; set; }
   }
 
   public class RSSFeedItem
@@ -18,5 +21,6 @@ namespace RSSReader.ViewModels
     public string LinkStr { get; set; }
     public string TitleStr { get; set; }
     public string ContentStr { get; set; }
+    public DateTime DateStr { get; set; }
   }
 }
