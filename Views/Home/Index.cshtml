@@ -1,4 +1,4 @@
-@model IEnumerable<RSSReader.ViewModels.RSSFeedItem>
+@model RSSReader.ViewModels.RSSFeedItemList
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -8,21 +8,70 @@
         <div class="panel panel-default">
             <div class="panel-heading">Settings</div>
             <div class="panel-body">
-                <!--<h2>Col 2</h2>-->
-                <ul>
-                    <li>Text</li>
-                    <li>Text</li>
-                </ul>
+                <form class="form-group" method="post" asp-action="Index" asp-controller="Home" enctype="multipart/form-data">
+                    <div>
+                        <label for="FeedUrl">RSS Feed url:</label>
+                        <input type="text" name="FeedUrl" class="form-control" value="https://news.google.com/?output=rss"/>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBox("DisplayTitle", true)
+                            Diplay Title
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBox("DisplayLink", false)
+                            Diplay Link
+                        </label>
+                    </div>
+                    <div class="checkbox">
+                        <label>
+                            @Html.CheckBox("DisplayContent", true)
+                            Diplay Content
+                        </label>
+                    </div>
+                    <div>
+                        <input type="submit" value="Load" class="btn btn-info btn-sm" />
+                    </div>
+                </form>
             </div>
         </div>
     </div>
     <div class="col-md-9">
-        @foreach (var item in Model) {
-        <div>
-            @item.TitleStr
-            <hr />
-        </div>
+        @if (Model.UrlIsValid)
+        {
+            @foreach (var item in Model.ItemList)
+            {
+                <div>
+                    @if (Model.DisplayTitle)
+                    {
+                        <div>
+                            <h5>@item.TitleStr</h5>
+                        </div>
+                    }
+                    @if (Model.DisplayContent)
+                    {
+                        <div>
+                            @Html.Raw(@item.ContentStr)
+                        </div>
+                    }
+                    @if (Model.DisplayLink)
+                    {
+                        <div>
+                            <a href=@item.LinkStr>@item.LinkStr.Substring(0, Math.Min(item.LinkStr.Length, 60))...</a>
+                        </div>
+                    }
+                    <hr />
+                </div>
+            }
         }
+        else
+        {
+            <div>
+                @Model.ErrorMsg
+                <hr />
+            </div>}
     </div>
 </div>
 
