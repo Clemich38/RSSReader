@@ -126,6 +126,9 @@ namespace RSSReader.Controllers
                 }
             }
 
+            // Order
+            RSSFeedItems.ItemList = RSSFeedItems.ItemList.OrderByDescending(x => x.DateStr);
+
             return RSSFeedItems;
         }
 
