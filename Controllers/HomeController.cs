@@ -111,7 +111,7 @@ namespace RSSReader.Controllers
 
         if(RSSFeedItems.FeedList.Count == 0)
             RSSFeedItems.ErrorMsg = "No Feed";
-            
+
         // Save model
         HttpContext.Session.SetObjectAsJson("RSSFeedItems", RSSFeedItems);
 
@@ -136,7 +136,7 @@ namespace RSSReader.Controllers
                     IEnumerable<RSSFeedItem> list = from item in doc.Root.Descendants().First(i => i.Name.LocalName == "channel").Elements().Where(i => i.Name.LocalName == "item")
                         select new RSSFeedItem
                         {
-                            TitleStr = item.Elements().First(i => i.Name.LocalName == "title").Value,
+                            TitleStr = feed.FeedTitle + " - " + item.Elements().First(i => i.Name.LocalName == "title").Value,
                             LinkStr = item.Elements().First(i => i.Name.LocalName == "link").Value,
                             ContentStr = item.Elements().First(i => i.Name.LocalName == "description").Value,
                             DateStr = ExtractDate(item.Elements().First(i => i.Name.LocalName == "pubDate").Value)
