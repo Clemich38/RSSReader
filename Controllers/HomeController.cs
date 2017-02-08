@@ -41,6 +41,7 @@ namespace RSSReader.Controllers
             }
             else
             {
+                // Retrieve Model
                 RSSFeedItems = HttpContext.Session.GetObjectFromJson<RSSFeedItemList>("RSSFeedItems");
             }
 
@@ -94,6 +95,7 @@ namespace RSSReader.Controllers
     [HttpPost]
     public async Task<IActionResult> Remove(string feedTitle)
     {
+        // Retrieve Model
         RSSFeedItemList RSSFeedItems = HttpContext.Session.GetObjectFromJson<RSSFeedItemList>("RSSFeedItems");
 
         RSSFeedItems.FeedList = RSSFeedItems.FeedList.Where(x => x.FeedTitle != feedTitle).ToList();
