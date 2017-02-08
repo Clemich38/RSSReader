@@ -52,9 +52,9 @@ namespace RSSReader.Controllers
             RSSFeedItems.DisplayDate = DisplayDate;
             RSSFeedItems.LastFeedUrl = FeedUrl;
 
-            if(RSSFeedItems.LastFeedUrl != null)
-            {
-                try{
+            try{
+                if(RSSFeedItems.LastFeedUrl != null)
+                {
                     using (var client = new HttpClient())
                     {
                         client.BaseAddress = new Uri(RSSFeedItems.LastFeedUrl);
@@ -69,22 +69,20 @@ namespace RSSReader.Controllers
                         
                         //Add the Url to the list
                         RSSFeedItems.FeedList.Add(new FeedChannel{FeedUrl = RSSFeedItems.LastFeedUrl,
-                                                                  FeedTitle = channelName});
+                                                                FeedTitle = channelName});
                     }
-
-                    RSSFeedItems = await RefreshFeedList(RSSFeedItems);
-
                 }
-                catch (Exception e){
-                    RSSFeedItems.ErrorMsg = e.Message;
-                    RSSFeedItems.UrlIsValid = false;
-                }
+
+                RSSFeedItems = await RefreshFeedList(RSSFeedItems);
+
             }
-            else
-            {
-                RSSFeedItems.ErrorMsg = "Invalid Url";
+            catch (Exception e){
+                RSSFeedItems.ErrorMsg = e.Message;
                 RSSFeedItems.UrlIsValid = false;
             }
+
+            if(RSSFeedItems.FeedList.Count == 0)
+                RSSFeedItems.ErrorMsg = "No Feed";
 
             // Save model
             HttpContext.Session.SetObjectAsJson("RSSFeedItems", RSSFeedItems);
