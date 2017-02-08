@@ -90,10 +90,38 @@ namespace RSSReader.Controllers
             HttpContext.Session.SetObjectAsJson("RSSFeedItems", RSSFeedItems);
 
             return View(RSSFeedItems);
-        } 
+        }
 
-        private async Task<RSSFeedItemList> RefreshFeedList(RSSFeedItemList RSSFeedItems)
+    // Remove one fees from the list
+    [HttpPost]
+    public async Task<IActionResult> Remove(string feedTitle)
+    {
+        RSSFeedItemList RSSFeedItems = HttpContext.Session.GetObjectFromJson<RSSFeedItemList>("RSSFeedItems");
+
+        RSSFeedItems.FeedList = RSSFeedItems.FeedList.Where(x => x.FeedTitle != feedTitle).ToList();
+
+        try{
+            RSSFeedItems = await RefreshFeedList(RSSFeedItems);
+        }
+        catch (Exception e)
         {
+            RSSFeedItems.ErrorMsg = e.Message;
+            RSSFeedItems.UrlIsValid = false;
+        }
+
+        if(RSSFeedItems.FeedList.Count == 0)
+            RSSFeedItems.ErrorMsg = "No Feed";
+            
+        // Save model
+        HttpContext.Session.SetObjectAsJson("RSSFeedItems", RSSFeedItems);
+
+        return View("Index", RSSFeedItems);
+    }
+
+    private async Task<RSSFeedItemList> RefreshFeedList(RSSFeedItemList RSSFeedItems)
+        {
+            RSSFeedItems.ItemList = null;
+
             foreach (FeedChannel feed in RSSFeedItems.FeedList)
             {
                 using (var client = new HttpClient())

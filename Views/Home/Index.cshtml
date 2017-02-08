@@ -43,16 +43,24 @@
                 </form>   
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-body">
-                @if (Model.UrlIsValid) {
+        @if (Model.UrlIsValid)
+        {
+            <div class="panel panel-default">
+                <div class="panel-heading">Feeds</div>
+                <div class="panel-body">    
                     @foreach (var feed in Model.FeedList) 
                     {
-                        <div>@feed.FeedTitle</div>
+                        <div>
+                            @using (Html.BeginForm("Remove","Home", new { feedTitle = @feed.FeedTitle }, FormMethod.Post))
+                            {
+                                <input type="submit" value="remove" class="btn btn-default btn-sm"/>
+                                @feed.FeedTitle
+                            }  
+                        </div>
                     }
-                }
+                </div>  
             </div>
-        </div>
+        }
     </div>
     <div class="col-md-9">
         @if (Model.UrlIsValid)
@@ -103,4 +111,3 @@
             </div>}
     </div>
 </div>
-
